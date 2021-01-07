@@ -1,4 +1,5 @@
 /env.bat
 /authrest/migrations/
 /venv/
-/.idea
+/.idea/
+/DynamicForms/migrations/
