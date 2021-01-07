@@ -90,6 +90,7 @@
       <workItem from="1609936327709" duration="8521000" />
       <workItem from="1609953622206" duration="4505000" />
       <workItem from="1610022598914" duration="4696000" />
+      <workItem from="1610027393599" duration="287000" />
     </task>
     <task id="LOCAL-00001" summary="#1 init">
       <created>1610024107528</created>
@@ -112,7 +113,14 @@
       <option name="project" value="LOCAL" />
       <updated>1610026938936</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="#3 init">
+      <created>1610027480119</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1610027480119</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -121,17 +129,18 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="#1 init" />
     <MESSAGE value="#2 init" />
-    <option name="LAST_COMMIT_MESSAGE" value="#2 init" />
+    <MESSAGE value="#3 init" />
+    <option name="LAST_COMMIT_MESSAGE" value="#3 init" />
   </component>
   <component name="WindowStateProjectService">
     <state x="473" y="86" width="1089" height="755" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1610027241046">
       <screen x="0" y="0" width="1562" height="848" />
     </state>
     <state x="473" y="86" width="1089" height="755" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1562.848@0.0.1562.848" timestamp="1610027241046" />
-    <state x="807" y="19" key="CommitChangelistDialog2" timestamp="1610026937518">
+    <state x="807" y="19" key="CommitChangelistDialog2" timestamp="1610027477838">
       <screen x="0" y="0" width="1562" height="848" />
     </state>
-    <state x="807" y="19" key="CommitChangelistDialog2/0.0.1562.848@0.0.1562.848" timestamp="1610026937518" />
+    <state x="807" y="19" key="CommitChangelistDialog2/0.0.1562.848@0.0.1562.848" timestamp="1610027477838" />
     <state x="952" y="166" key="FileChooserDialogImpl" timestamp="1610024908122">
       <screen x="0" y="0" width="1562" height="848" />
     </state>
@@ -160,10 +169,10 @@
       <screen x="0" y="0" width="1562" height="848" />
     </state>
     <state x="581" y="67" key="SettingsEditor/0.0.1562.848@0.0.1562.848" timestamp="1610026504612" />
-    <state x="748" y="157" key="Vcs.Push.Dialog.v2" timestamp="1610026945720">
+    <state x="748" y="157" key="Vcs.Push.Dialog.v2" timestamp="1610027489459">
       <screen x="0" y="0" width="1562" height="848" />
     </state>
-    <state x="748" y="157" key="Vcs.Push.Dialog.v2/0.0.1562.848@0.0.1562.848" timestamp="1610026945720" />
+    <state x="748" y="157" key="Vcs.Push.Dialog.v2/0.0.1562.848@0.0.1562.848" timestamp="1610027489459" />
     <state x="875" y="100" width="594" height="654" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1610027124824">
       <screen x="0" y="0" width="1562" height="848" />
     </state>
