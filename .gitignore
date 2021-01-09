@@ -3,4 +3,4 @@
 /venv/
 .idea
 /DynamicForms/migrations/
-__pycache__
+__pycache__/
