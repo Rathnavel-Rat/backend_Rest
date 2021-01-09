@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c7b56bff-1805-473b-83e2-c021df71d506" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend_Rest/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend_Rest/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend_Rest/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/backend_Rest/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DynamicForms/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/DynamicForms/urls.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -95,7 +93,11 @@
       <workItem from="1609936327709" duration="8521000" />
       <workItem from="1609953622206" duration="4505000" />
       <workItem from="1610022598914" duration="4696000" />
-      <workItem from="1610027393599" duration="3923000" />
+      <workItem from="1610027393599" duration="4246000" />
+      <workItem from="1610116926227" duration="1233000" />
+      <workItem from="1610118793187" duration="5000" />
+      <workItem from="1610118823070" duration="1069000" />
+      <workItem from="1610120291020" duration="657000" />
     </task>
     <task id="LOCAL-00001" summary="#1 init">
       <created>1610024107528</created>
@@ -139,7 +141,14 @@
       <option name="project" value="LOCAL" />
       <updated>1610027923417</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="#6 dynamic models">
+      <created>1610031574637</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1610031574637</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -151,21 +160,22 @@
     <MESSAGE value="#3 init" />
     <MESSAGE value="#4 init" />
     <MESSAGE value="#5 init" />
-    <option name="LAST_COMMIT_MESSAGE" value="#5 init" />
+    <MESSAGE value="#6 dynamic models" />
+    <option name="LAST_COMMIT_MESSAGE" value="#6 dynamic models" />
   </component>
   <component name="WindowStateProjectService">
     <state x="473" y="86" width="1089" height="755" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1610027241046">
       <screen x="0" y="0" width="1562" height="848" />
     </state>
     <state x="473" y="86" width="1089" height="755" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1562.848@0.0.1562.848" timestamp="1610027241046" />
-    <state x="807" y="19" key="CommitChangelistDialog2" timestamp="1610027921734">
+    <state x="807" y="19" key="CommitChangelistDialog2" timestamp="1610031573356">
       <screen x="0" y="0" width="1562" height="848" />
     </state>
-    <state x="807" y="19" key="CommitChangelistDialog2/0.0.1562.848@0.0.1562.848" timestamp="1610027921734" />
-    <state x="952" y="166" key="FileChooserDialogImpl" timestamp="1610024908122">
+    <state x="807" y="19" key="CommitChangelistDialog2/0.0.1562.848@0.0.1562.848" timestamp="1610031573356" />
+    <state x="952" y="166" key="FileChooserDialogImpl" timestamp="1610119164795">
       <screen x="0" y="0" width="1562" height="848" />
     </state>
-    <state x="952" y="166" key="FileChooserDialogImpl/0.0.1562.848@0.0.1562.848" timestamp="1610024908122" />
+    <state x="952" y="166" key="FileChooserDialogImpl/0.0.1562.848@0.0.1562.848" timestamp="1610119164795" />
     <state x="1047" y="321" key="Github.ShareDialog" timestamp="1610027170734">
       <screen x="0" y="0" width="1562" height="848" />
     </state>
@@ -198,10 +208,10 @@
       <screen x="0" y="0" width="1562" height="848" />
     </state>
     <state x="875" y="100" width="594" height="654" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.0.1562.848@0.0.1562.848" timestamp="1610027124824" />
-    <state x="874" y="248" key="com.intellij.ide.util.TipDialog" timestamp="1610027396090">
+    <state x="874" y="248" key="com.intellij.ide.util.TipDialog" timestamp="1610120291231">
       <screen x="0" y="0" width="1562" height="848" />
     </state>
-    <state x="874" y="248" key="com.intellij.ide.util.TipDialog/0.0.1562.848@0.0.1562.848" timestamp="1610027396090" />
+    <state x="874" y="248" key="com.intellij.ide.util.TipDialog/0.0.1562.848@0.0.1562.848" timestamp="1610120291231" />
     <state x="1036" y="156" key="com.intellij.openapi.vcs.changes.SpecificFilesViewDialog" timestamp="1610026631555">
       <screen x="0" y="0" width="1562" height="848" />
     </state>
