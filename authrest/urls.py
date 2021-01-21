@@ -9,8 +9,8 @@ urlpatterns = [
     path("login",views.LoginApiView.as_view(),name="login"),
     path("logout",views.LogoutAPIView.as_view(),name="logout"),
 
-    path('RequestEmailChange',views.RequestChangingPassword.as_view(),name="requestpasswordchange"),
-    path("RequestEmailChangeVerififcation/<uidb64>/<token>",views.RequestPasswordChangeEmailVerifiacation.as_view(),name="RECV"),
+    path('RequestPasswordChange',views.RequestChangingPassword.as_view(),name="requestpasswordchange"),
+    path("RequestPasswordChangeVerification/<uidb64>/<token>",views.RequestPasswordChangeEmailVerifiacation.as_view(),name="RECV"),
     path("SetNewPassword",views.SetNewPasswordApi.as_view(),name="setNewPassword")
 
 

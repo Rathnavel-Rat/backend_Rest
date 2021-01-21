@@ -7,7 +7,7 @@ from rest_framework import status, permissions
 from rest_framework.generics import *
 from rest_framework.permissions import *
 from rest_framework.response import Response
-
+from django.http import HttpResponsePermanentRedirect
 from backend_Rest import settings
 from .Utils import Util
 
@@ -15,6 +15,7 @@ from .serializers import *
 from django.shortcuts import reverse
 from django.contrib.sites.shortcuts import get_current_site
 from rest_framework_simplejwt.tokens import RefreshToken
+import os
 
 
 # Create your views here.
@@ -22,6 +23,14 @@ def email_send_verification(complete_url, user):
     email_body = "hai " + user.username + " Use the link below to verify \n " + complete_url
     data = {"email_body": email_body, "to_email": user.email, "email_subject": "email verification"}
     Util.send_email(data)
+
+
+def getUserSendVerification(email, domain_name):
+    user = User.objects.get(email=email)
+    token = str(RefreshToken.for_user(user).access_token)
+    urls = reverse("emailVerification")
+    complete_url = "http://" + str(domain_name) + urls + "?token=" + str(token)
+    email_send_verification(complete_url, user)
 
 
 class Register(GenericAPIView):
@@ -32,13 +41,22 @@ class Register(GenericAPIView):
         serializers.is_valid(raise_exception=True)
         serializers.save()
         data = serializers.data
-        user = User.objects.get(email=data.get('email'))
-        token = str(RefreshToken.for_user(user).access_token)
         domain_name = get_current_site(request).domain
-        urls = reverse("emailVerification")
-        complete_url = "htttp://" + str(domain_name) + urls + "?token=" + str(token)
-        email_send_verification(complete_url, user)
-        return Response({"message": "RegisteredSuccessfully"}, status=status.HTTP_201_CREATED)
+        getUserSendVerification(data.get("email"), domain_name)
+        url = os.environ.get("FRONTEND_URL") + "/Login"
+        return HttpResponsePermanentRedirect(url)
+
+
+class ResendEmailVerfication(views.APIView):
+    serializers_class = ResendEmailVerficationSerializer
+
+    def post(self, request):
+        serializer = self.serializers_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        domain_name = get_current_site(request).domain
+        getUserSendVerification(request.data.get('email'), domain_name)
+        url = os.environ.get("FRONTEND_URL") + "/Login"
+        return HttpResponsePermanentRedirect(url)
 
 
 class VerfiyUsingEmail(views.APIView):
@@ -67,9 +85,13 @@ class LoginApiView(GenericAPIView):
         serializers = self.serializer_class(data=request.data)
         serializers.is_valid(raise_exception=True)
         data = serializers.data
-        print(self.request.user)
+        response = Response()
+        # response.set_cookie(key="accesstoken", value=data.get("access_token"), httponly=True)
+        # response.set_cookie(key="refreshtoken", value=data.get("refresh_token"), httponly=True)
         final_data = {"success": True, "data": data}
-        return Response(final_data, status=status.HTTP_200_OK)
+        response.data = final_data
+        response.status = status.HTTP_200_OK
+        return response
 
 
 class RequestChangingPassword(GenericAPIView):
@@ -90,24 +112,31 @@ class RequestChangingPassword(GenericAPIView):
 
 class RequestPasswordChangeEmailVerifiacation(GenericAPIView):
     serializer_class = PasswordTokenCheckSerailizer
-
     def get(self, request, uidb64, token):
         try:
             id = smart_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(id=id)
-            print(user)
-            if not PasswordResetTokenGenerator().check_token(user=user, token=token):
-                return Response({"error": "token is not valid ,please request another "})
+            url = os.environ.get(
+                "FRONTEND_URL") + "/passwordReset" + '?token_valid=True&message=CredentialsValid&uidb64=' + uidb64 + '&token=' + token
 
-            return Response({"success": True, "message": "valid ", "uid": id, "token": token})
+            if not PasswordResetTokenGenerator().check_token(user=user, token=token):
+                url = os.environ.get(
+                    "FRONTEND_URL") + "/passwordReset" + '?token_valid=False&message=CredentialsInValid'
+                return HttpResponsePermanentRedirect(url)
+                # Response({"error": "token is not valid ,please request another "})
+
+            return HttpResponsePermanentRedirect(url)
+            # Response({"success": True, "message": "valid ", "uid": id, "token": token})
         except DjangoUnicodeDecodeError as e:
             if not PasswordResetTokenGenerator().check_token(user=user, token=token):
-                return Response({"error": "token is not valid ,please request another "})
+                url = os.environ.get(
+                    "FRONTEND_URL") + "passwordReset/" + '?token_valid=False&message=CredentialsInValid'
+                return HttpResponsePermanentRedirect(url)
 
 
 class SetNewPasswordApi(GenericAPIView):
     serializer_class = SetNewPasswordSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = (permissions.AllowAny,)
 
     def patch(self, request):
         serializer = self.serializer_class(data=request.data)
