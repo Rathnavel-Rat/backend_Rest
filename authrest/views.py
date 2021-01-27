@@ -1,6 +1,6 @@
+from datetime import datetime
+
 import jwt
-from django.contrib.auth import authenticate
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import smart_bytes, smart_str, DjangoUnicodeDecodeError
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from rest_framework import status, permissions
@@ -16,6 +16,7 @@ from django.shortcuts import reverse
 from django.contrib.sites.shortcuts import get_current_site
 from rest_framework_simplejwt.tokens import RefreshToken
 import os
+import datetime
 
 
 # Create your views here.
@@ -71,6 +72,8 @@ class VerfiyUsingEmail(views.APIView):
                 user.is_verified = True
                 user.is_active = True
                 user.save()
+                url = os.environ.get("FRONTEND_URL") + "/Login"
+                return HttpResponsePermanentRedirect(url)
             return Response({"message": "successfully verified"}, status=status.HTTP_200_OK)
         except jwt.ExpiredSignatureError as e:
             return Response({'error': 'Activations link expired'}, status=status.HTTP_400_BAD_REQUEST)
@@ -86,8 +89,10 @@ class LoginApiView(GenericAPIView):
         serializers.is_valid(raise_exception=True)
         data = serializers.data
         response = Response()
-        # response.set_cookie(key="accesstoken", value=data.get("access_token"), httponly=True)
-        # response.set_cookie(key="refreshtoken", value=data.get("refresh_token"), httponly=True)
+        response.set_cookie(key="accesstoken", value=data.get("access_token"), max_age=6 * 24 * 60 * 60,httponly=True)
+        response.set_cookie(key="refreshtoken", value=data.get("refresh_token"), max_age=6 * 24 * 60 * 60,httponly=True)
+        data.pop("access_token")#added
+        data.pop("refresh_token")#added
         final_data = {"success": True, "data": data}
         response.data = final_data
         response.status = status.HTTP_200_OK
@@ -116,8 +121,7 @@ class RequestPasswordChangeEmailVerifiacation(GenericAPIView):
         try:
             id = smart_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(id=id)
-            url = os.environ.get(
-                "FRONTEND_URL") + "/passwordReset" + '?token_valid=True&message=CredentialsValid&uidb64=' + uidb64 + '&token=' + token
+            url = os.environ.get("FRONTEND_URL") + "/passwordReset" + '?token_valid=True&message=CredentialsValid&uidb64=' + uidb64 + '&token=' + token
 
             if not PasswordResetTokenGenerator().check_token(user=user, token=token):
                 url = os.environ.get(
