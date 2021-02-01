@@ -132,9 +132,7 @@ STATIC_URL = '/static/'
 AUTH_USER_MODEL = "authrest.User"
 REST_FRAMEWORK = {
 
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+
 
 }
 SWAGGER_SETTINGS = {
@@ -154,24 +152,21 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
 CORS_ALLOW_CREDENTIALS = True
-CORS_ORIGIN_WHITELIST = [
-    "http://127.0.0.1:8000",
-    "http://127.0.0.1:3000",
-    "http://localhost:3000",
-    "http://192.168.43.123:3000",
-]
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost:3000',
+    'http://127.0.0.1:3000'
+)
 # jwt
 SIMPLE_JWT = {
     'ALGORITHM': 'HS256',
     'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=6),
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=7),
+     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
 
-CSRF_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = None
+SESSION_COOKIE_SAMESITE = None
 CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_HTTPONLY = True

@@ -2,21 +2,18 @@ from datetime import datetime
 
 import jwt
 from django.utils.encoding import smart_bytes, smart_str, DjangoUnicodeDecodeError
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from rest_framework import status, permissions
 from rest_framework.generics import *
-from rest_framework.permissions import *
 from rest_framework.response import Response
 from django.http import HttpResponsePermanentRedirect
 from backend_Rest import settings
+from .CustomAuth import AuthToken
 from .Utils import Util
-
 from .serializers import *
 from django.shortcuts import reverse
 from django.contrib.sites.shortcuts import get_current_site
 from rest_framework_simplejwt.tokens import RefreshToken
 import os
-import datetime
 
 
 # Create your views here.
@@ -89,10 +86,12 @@ class LoginApiView(GenericAPIView):
         serializers.is_valid(raise_exception=True)
         data = serializers.data
         response = Response()
-        response.set_cookie(key="accesstoken", value=data.get("access_token"), max_age=6 * 24 * 60 * 60,httponly=True)
-        response.set_cookie(key="refreshtoken", value=data.get("refresh_token"), max_age=6 * 24 * 60 * 60,httponly=True)
-        data.pop("access_token")#added
-        data.pop("refresh_token")#added
+        response.set_cookie(key="accesstoken", value=data.get("access_token"), max_age=6 * 24 * 60 * 60, httponly=True,
+                            secure=False, )
+        response.set_cookie(key="refreshtoken", value=data.get("refresh_token"), max_age=6 * 24 * 60 * 60,
+                            httponly=True, secure=False)
+        # data.pop("access_token")#added
+        data.pop("refresh_token")  # added
         final_data = {"success": True, "data": data}
         response.data = final_data
         response.status = status.HTTP_200_OK
@@ -117,11 +116,13 @@ class RequestChangingPassword(GenericAPIView):
 
 class RequestPasswordChangeEmailVerifiacation(GenericAPIView):
     serializer_class = PasswordTokenCheckSerailizer
+
     def get(self, request, uidb64, token):
         try:
             id = smart_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(id=id)
-            url = os.environ.get("FRONTEND_URL") + "/passwordReset" + '?token_valid=True&message=CredentialsValid&uidb64=' + uidb64 + '&token=' + token
+            url = os.environ.get(
+                "FRONTEND_URL") + "/passwordReset" + '?token_valid=True&message=CredentialsValid&uidb64=' + uidb64 + '&token=' + token
 
             if not PasswordResetTokenGenerator().check_token(user=user, token=token):
                 url = os.environ.get(
@@ -151,9 +152,16 @@ class SetNewPasswordApi(GenericAPIView):
 class LogoutAPIView(GenericAPIView):
     serializer_class = LogoutSerializer
     permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (AuthToken,)
 
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        token = request.COOKIES['refreshtoken']
+        try:
+            RefreshToken(token).blacklist()
+        except TokenError:
+            raise Exception("Token is invalid or expired")
+        response = Response()
+        response.delete_cookie('accesstoken')
+        response.delete_cookie('refreshtoken')
+        response.delete_cookie('csrftoken')
+        return response
