@@ -87,11 +87,10 @@ class LoginApiView(GenericAPIView):
         data = serializers.data
         response = Response()
         response.set_cookie(key="accesstoken", value=data.get("access_token"), max_age=6 * 24 * 60 * 60, httponly=True,
-                            secure=False, )
+                            secure=False,samesite=None )
         response.set_cookie(key="refreshtoken", value=data.get("refresh_token"), max_age=6 * 24 * 60 * 60,
-                            httponly=True, secure=False)
-        # data.pop("access_token")#added
-        data.pop("refresh_token")  # added
+                            httponly=True, secure=False,samesite=None)
+
         final_data = {"success": True, "data": data}
         response.data = final_data
         response.status = status.HTTP_200_OK
