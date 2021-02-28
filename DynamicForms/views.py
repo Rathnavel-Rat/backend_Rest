@@ -1,10 +1,16 @@
-from rest_framework import status, permissions
-from rest_framework.generics import GenericAPIView
+from psycopg2._json import Json
+from rest_framework import status, permissions, generics
+from rest_framework.generics import GenericAPIView, ListAPIView
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from DynamicForms.serializers import FormSaveSerializer
+from DynamicForms.serializers import FormSaveSerializer, GetStoredFormSerializer
 from authrest.CustomAuth import AuthToken
 from authrest.models import User
+from rest_framework.parsers import FormParser, MultiPartParser
+from .models import FormsModel
+import base64
+from .Fields_pb2 import ListFields
 
 
 class SaveForm(GenericAPIView):
@@ -12,10 +18,21 @@ class SaveForm(GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (AuthToken,)
 
-    def get(self, request):
+    def post(self, request):
         user = User.objects.get(email=request.user)
-        data = {"binaryData": request.data["binaryData"], "access_id": "Sadsad", "admin": user}
-        serializer = self.serializer_class(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
+        ser_data = {"admin": user, "binaryData": base64.b64decode(request.data["data"]), }
+        form = FormsModel()
+        form.admin = user
+        form.binaryData = base64.b64decode(request.data["data"])
+        form.save()
+        # use in resonsing f = base64.b64encode(base64.b64decode(request.data["data"]))
         return Response({"success": True}, status=status.HTTP_200_OK)
+
+
+class GetStoredForms(generics.ListAPIView):
+    serializer_class = GetStoredFormSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (AuthToken,)
+
+    def get_queryset(self):
+        return FormsModel.objects.filter(admin=self.request.user)
