@@ -4,14 +4,18 @@ from django.db import models
 from authrest.models import User
 
 
+def hex_uuid():
+    return uuid.uuid4().hex
+
+
 class FormsModel(models.Model):
-    form_id = models.UUIDField(primary_key=True, unique=True, auto_created=True, default=uuid.uuid4, editable=False)
-    admin = models.ForeignKey(User, on_delete=models.CASCADE)
+    form_id = models.CharField(primary_key=True, max_length=255,unique=True, auto_created=True, default=uuid.uuid1, editable=False)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
     collaborators = models.ManyToManyField(User, through="FormResponses", related_name="collabs")
-    binaryData = models.BinaryField()
-    access_id = models.CharField(default=uuid.uuid4().hex, max_length=255)
+    binaryData = models.BinaryField(default=None,blank=True)
+    access_id = models.CharField(default=hex_uuid(), max_length=255)
     name = models.CharField(max_length=255)
-    date=models.DateTimeField(auto_now=True)
+    date = models.DateTimeField(auto_now=True)
 
 
 class FormResponses(models.Model):

@@ -4,13 +4,13 @@ from rest_framework.generics import GenericAPIView, ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from DynamicForms.serializers import FormSaveSerializer, GetStoredFormSerializer
+from DynamicForms.serializers import FormSaveSerializer, GetStoredFormSerializer, NewFormSerializer, UpdateFormName, \
+    GetFormBinaryData
 from authrest.CustomAuth import AuthToken
-from authrest.models import User
-from rest_framework.parsers import FormParser, MultiPartParser
+
 from .models import FormsModel
 import base64
-from .Fields_pb2 import ListFields
+
 
 
 class SaveForm(GenericAPIView):
@@ -19,13 +19,9 @@ class SaveForm(GenericAPIView):
     authentication_classes = (AuthToken,)
 
     def post(self, request):
-        user = User.objects.get(email=request.user)
-        ser_data = {"admin": user, "binaryData": base64.b64decode(request.data["data"]), }
-        form = FormsModel()
-        form.admin = user
-        form.binaryData = base64.b64decode(request.data["data"])
-        form.save()
-        # use in resonsing f = base64.b64encode(base64.b64decode(request.data["data"]))
+        ser_data = {"binaryData": request.data["data"], "form_id": request.data["form_id"]}
+        serializer = self.serializer_class(data=ser_data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
         return Response({"success": True}, status=status.HTTP_200_OK)
 
 
@@ -35,5 +31,41 @@ class GetStoredForms(generics.ListAPIView):
     authentication_classes = (AuthToken,)
 
     def get_queryset(self):
-        print("sdsd")
-        return FormsModel.objects.filter(admin=self.request.user)
+        return FormsModel.objects.filter(owner=self.request.user)
+
+
+class NewForm(GenericAPIView):
+    serializer_class = NewFormSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (AuthToken,)
+
+    def post(self, request):
+        data = dict(request.data)
+        data["name"] = request.data.get("name")
+        data["owner"] = request.user.pk
+        serializer = self.serializer_class(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        queryset = FormsModel.objects.filter(owner=request.user)
+        ser = self.serializer_class(queryset, many=True)
+        return Response({"success": True, "data": ser.data}, status=status.HTTP_201_CREATED)
+
+
+class UpdateName(GenericAPIView):
+    serializer_class = UpdateFormName
+
+    def patch(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response(status=status.HTTP_200_OK)
+
+
+class BinaryFormData(APIView):
+    serializer_class = GetFormBinaryData
+
+    def get(self, request):
+        Form = FormsModel.objects.get(form_id=request.GET.get('form_id'))
+        if Form.binaryData is None:
+            return Response({"success": True, "data": "", "form_id": request.GET.get('form_id'),"name":Form.name},status=status.HTTP_200_OK)
+        data = {"success": True, "data": base64.b64encode(Form.binaryData), "form_id": request.GET.get('form_id'),"name":Form.name}
+        return Response(data, status=status.HTTP_200_OK)
