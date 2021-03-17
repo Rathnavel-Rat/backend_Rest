@@ -5,12 +5,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from DynamicForms.serializers import FormSaveSerializer, GetStoredFormSerializer, NewFormSerializer, UpdateFormName, \
-    GetFormBinaryData
+    DeleteSerializer
 from authrest.CustomAuth import AuthToken
 
 from .models import FormsModel
 import base64
-
 
 
 class SaveForm(GenericAPIView):
@@ -52,6 +51,8 @@ class NewForm(GenericAPIView):
 
 
 class UpdateName(GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (AuthToken,)
     serializer_class = UpdateFormName
 
     def patch(self, request):
@@ -61,11 +62,35 @@ class UpdateName(GenericAPIView):
 
 
 class BinaryFormData(APIView):
-    serializer_class = GetFormBinaryData
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (AuthToken,)
 
     def get(self, request):
         Form = FormsModel.objects.get(form_id=request.GET.get('form_id'))
         if Form.binaryData is None:
-            return Response({"success": True, "data": "", "form_id": request.GET.get('form_id'),"name":Form.name},status=status.HTTP_200_OK)
-        data = {"success": True, "data": base64.b64encode(Form.binaryData), "form_id": request.GET.get('form_id'),"name":Form.name}
+            return Response({"success": True, "data": "", "form_id": request.GET.get('form_id'), "name": Form.name},
+                            status=status.HTTP_200_OK)
+        data = {"success": True, "data": base64.b64encode(Form.binaryData), "form_id": request.GET.get('form_id'),
+                "name": Form.name}
         return Response(data, status=status.HTTP_200_OK)
+
+
+class AccessForm(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (AuthToken,)
+
+    def get(self, request):
+        Form = FormsModel.objects.get(access_id=request.GET.get('access_id'))
+        return Response({"success": True, "data": base64.b64encode(Form.binaryData)}, status=status.HTTP_200_OK)
+
+
+class DeleteForm(GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (AuthToken,)
+    serializer_class = DeleteSerializer
+
+    def delete(self, request):
+        data = {"form_id": str(request.GET.get("form_id"))}
+        serializer = self.serializer_class(data=data)
+        serializer.is_valid(raise_exception=True)
+        return Response({"success": True})

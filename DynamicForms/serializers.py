@@ -34,7 +34,7 @@ class GetStoredFormSerializer(serializers.ModelSerializer):
 class NewFormSerializer(serializers.ModelSerializer):
     class Meta:
         model = FormsModel
-        fields = ["name", "owner"]
+        fields = ["name", "owner", "form_id", "date"]
 
     def validate(self, attrs):
         return attrs
@@ -59,5 +59,17 @@ class UpdateFormName(serializers.ModelSerializer):
         return attrs
 
 
-class GetFormBinaryData(serializers.ModelSerializer):
-    pass
+class DeleteSerializer(serializers.ModelSerializer):
+    form_id = serializers.CharField()
+    class Meta:
+        model = FormsModel
+        fields = ["form_id"]
+
+    def validate(self, attrs):
+        form_id = attrs.get('form_id')
+        try:
+            form = FormsModel.objects.get(form_id=form_id)
+            form.delete()
+        except Exception as e:
+            raise ObjectDoesNotExist("No mathcing form found")
+        return attrs

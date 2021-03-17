@@ -9,11 +9,13 @@ def hex_uuid():
 
 
 class FormsModel(models.Model):
-    form_id = models.CharField(primary_key=True, max_length=255,unique=True, auto_created=True, default=uuid.uuid1, editable=False)
+    form_id = models.CharField(primary_key=True, max_length=255, unique=True, auto_created=True, default=uuid.uuid1,
+                               editable=False)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     collaborators = models.ManyToManyField(User, through="FormResponses", related_name="collabs")
-    binaryData = models.BinaryField(default=None,blank=True)
+    binaryData = models.BinaryField(blank=True)
     access_id = models.CharField(default=hex_uuid(), max_length=255)
+    isPublish = models.BooleanField(default=False)
     name = models.CharField(max_length=255)
     date = models.DateTimeField(auto_now=True)
 
