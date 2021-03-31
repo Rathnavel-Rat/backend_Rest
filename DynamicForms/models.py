@@ -1,7 +1,12 @@
 import uuid
 from django.db import models
-
 from authrest.models import User
+
+import os
+
+
+def get_upload_path(instance, filename):
+    return os.path.join("media/%s" % instance.Form.pk, instance.MailName, filename)
 
 
 def hex_uuid():
@@ -23,6 +28,14 @@ class FormsModel(models.Model):
 class FormResponses(models.Model):
     Form = models.ForeignKey(FormsModel, on_delete=models.CASCADE)
     Responded_user = models.ForeignKey(User, on_delete=models.CASCADE)
-    Responses = models.BinaryField()
+    MailName = models.CharField(max_length=256)
+    Responses = models.JSONField(blank=True, null=True)
     is_done = models.BooleanField(default=False)
     results = models.CharField(default="waiting", max_length=255)
+
+
+class FormFileResponses(models.Model):
+    Form = models.ForeignKey(FormsModel, on_delete=models.CASCADE)
+    MailName = models.CharField(max_length=256)
+    File = models.FileField(upload_to=get_upload_path)
+    date = models.DateTimeField(auto_now=True)

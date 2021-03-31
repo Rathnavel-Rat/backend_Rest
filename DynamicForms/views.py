@@ -5,10 +5,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from DynamicForms.serializers import FormSaveSerializer, GetStoredFormSerializer, NewFormSerializer, UpdateFormName, \
-    DeleteSerializer
+    DeleteSerializer, SaveResponse, GetResponsesSerializer, FileSaveSerializer
 from authrest.CustomAuth import AuthToken
-
-from .models import FormsModel
+from .models import FormsModel, FormResponses, FormFileResponses
 import base64
 
 
@@ -90,7 +89,60 @@ class DeleteForm(GenericAPIView):
     serializer_class = DeleteSerializer
 
     def delete(self, request):
-        data = {"form_id": str(request.GET.get("form_id"))}
+        data = {"form_id": str(request.GET.get("form_id")), "owner": str(request.user.pk)}
         serializer = self.serializer_class(data=data)
         serializer.is_valid(raise_exception=True)
-        return Response({"success": True})
+        return Response({"success": True}, status=status.HTTP_200_OK)
+
+
+class SaveResponses(GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (AuthToken,)
+    serializer_class = SaveResponse
+
+    def post(self, request):
+        try:
+            FormsModel.objects.get(access_id=request.data["access_id"])
+        except FormsModel.DoesNotExist:
+            return Response({"success": False}, status=status.HTTP_406_NOT_ACCEPTABLE)
+        data = {"Form": str(request.data["access_id"]), "Responded_user": str(request.user.pk),
+                "MailName": str(request.user.email + ",(" + request.user.username + ")")}
+        serializer = self.serializer_class(data=data)
+        serializer.is_valid(raise_exception=True)
+        _FormModel = FormsModel.objects.get(access_id=serializer.data["Form"])
+        FormResponses(Form=_FormModel, Responded_user=request.user, is_done=True, results="",
+                      Responses=request.data["Responses"], MailName=serializer.data["MailName"]).save()
+        return Response({"success": True}, status=status.HTTP_200_OK)
+
+
+class GetResponses(generics.ListAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (AuthToken,)
+    serializer_class = GetResponsesSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
+
+
+class FileSave(GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (AuthToken,)
+    serializer_class = FileSaveSerializer
+
+    def post(self, request):
+        data = {"Form": str(request.data["access_id"]),
+                "MailName": str(request.user.email + ",(" + request.user.username + ")")}
+        serializer = self.serializer_class(data=data)
+        serializer.is_valid(raise_exception=True)
+        Form = FormsModel.objects.get(form_id=serializer.data["Form"])
+        filepath = {}
+        for i in request.FILES:
+            File = FormFileResponses()
+            File.Form = Form
+            File.MailName = serializer.data["MailName"]
+            File.File = request.FILES[i]
+            File.save()
+            filepath[i] = File.File.url
+        return Response({"success": True, "filepath": filepath})
