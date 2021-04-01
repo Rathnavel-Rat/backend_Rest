@@ -30,7 +30,7 @@ class FormSaveSerializer(serializers.ModelSerializer):
 class GetStoredFormSerializer(serializers.ModelSerializer):
     class Meta:
         model = FormsModel
-        fields = ["form_id", "name", "date"]
+        fields = ["form_id", "name", "date","access_id"]
 
 
 class NewFormSerializer(serializers.ModelSerializer):
