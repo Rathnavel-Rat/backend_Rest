@@ -1,10 +1,7 @@
 import base64
-from abc import ABC
-
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, FieldDoesNotExist
 from rest_framework import serializers
-
 from .models import FormsModel, FormResponses, FormFileResponses
 
 
@@ -30,7 +27,7 @@ class FormSaveSerializer(serializers.ModelSerializer):
 class GetStoredFormSerializer(serializers.ModelSerializer):
     class Meta:
         model = FormsModel
-        fields = ["form_id", "name", "date","access_id"]
+        fields = ["form_id", "name", "date", "access_id", "isPublish"]
 
 
 class NewFormSerializer(serializers.ModelSerializer):
@@ -148,4 +145,46 @@ class FileSaveSerializer(serializers.ModelSerializer):
             attrs["Form"] = f.form_id
         except FormsModel.DoesNotExist:
             raise serializers.ValidationError("No Such Form  Found")
+        return attrs
+
+
+class MakeFormVisibleSerializer(serializers.ModelSerializer):
+    form_id = serializers.CharField()
+    owner = serializers.CharField()
+    isPublish = serializers.BooleanField()
+
+    class Meta:
+        model = FormsModel
+        fields = ["form_id", "owner", "isPublish"]
+
+    def validate(self, attrs):
+        form_id = attrs.get('form_id')
+        user_id = attrs.get('owner')
+        try:
+            form = FormsModel.objects.get(form_id=form_id, owner=user_id)
+            form.isPublish = attrs.get("isPublish")
+            form.save()
+        except FormsModel.DoesNotExist:
+            raise serializers.ValidationError("No Such Form is Found")
+        except Exception as e:
+            raise ObjectDoesNotExist("No mathcing form found")
+        return attrs
+
+
+class AccessFormSerializer(serializers.ModelSerializer):
+    access_id = serializers.CharField()
+
+    class Meta:
+        model = FormsModel
+        fields = ["access_id"]
+
+    def validate(self, attrs):
+        access_id = attrs.get("access_id")
+        print(access_id)
+        try:
+            form = FormsModel.objects.get(access_id=access_id)
+        except FormsModel.DoesNotExist:
+            raise serializers.ValidationError("No Such Form is Found")
+        except Exception as e:
+            raise ObjectDoesNotExist("No mathcing form found")
         return attrs

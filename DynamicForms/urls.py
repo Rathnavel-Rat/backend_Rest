@@ -13,5 +13,6 @@ urlpatterns = [
     path("SubmitResponse", views.SaveResponses.as_view(), name="SubmitResponses"),
     path("GetResponse",views.GetResponses.as_view(),name="GetFormResponses"),
     path("saveFile",views.FileSave.as_view(),name="saveFile"),
+    path("MakeFormVisible",views.MakeFormVisible.as_view(),name="MakeFormVisible"),
 
 ]

@@ -1,11 +1,10 @@
-from psycopg2._json import Json
 from rest_framework import status, permissions, generics
 from rest_framework.generics import GenericAPIView, ListAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
 from DynamicForms.serializers import FormSaveSerializer, GetStoredFormSerializer, NewFormSerializer, UpdateFormName, \
-    DeleteSerializer, SaveResponse, GetResponsesSerializer, FileSaveSerializer
+    DeleteSerializer, SaveResponse, GetResponsesSerializer, FileSaveSerializer, MakeFormVisibleSerializer, \
+    AccessFormSerializer
 from authrest.CustomAuth import AuthToken
 from .models import FormsModel, FormResponses, FormFileResponses
 import base64
@@ -69,18 +68,27 @@ class BinaryFormData(APIView):
         if Form.binaryData is None:
             return Response({"success": True, "data": "", "form_id": request.GET.get('form_id'), "name": Form.name},
                             status=status.HTTP_200_OK)
+        print(base64.b64encode(Form.binaryData), "l")
         data = {"success": True, "data": base64.b64encode(Form.binaryData), "form_id": request.GET.get('form_id'),
                 "name": Form.name}
         return Response(data, status=status.HTTP_200_OK)
 
 
-class AccessForm(APIView):
+class AccessForm(GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     authentication_classes = (AuthToken,)
+    serializer_class = AccessFormSerializer
 
     def get(self, request):
+        data = {"access_id": request.GET.get('access_id')}
+        serializer = self.serializer_class(data=data)
+        serializer.is_valid(raise_exception=True)
         Form = FormsModel.objects.get(access_id=request.GET.get('access_id'))
-        return Response({"success": True, "data": base64.b64encode(Form.binaryData)}, status=status.HTTP_200_OK)
+        if Form.isPublish:
+            return Response({"success": True, "message": "Success", "data": base64.b64encode(Form.binaryData)},
+                            status=status.HTTP_200_OK)
+        return Response({"success": False, "message": "This form don't support any responses"},
+                        status=status.HTTP_200_OK)
 
 
 class DeleteForm(GenericAPIView):
@@ -123,7 +131,10 @@ class GetResponses(generics.ListAPIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
+        Form = FormsModel.objects.get(form_id=request.data["Form"])
+        data = {"binaryData": base64.b64encode(Form.binaryData), "data": serializer.data}
+        return Response({"success": True, "message": "Success", "data": data},
+                        status=status.HTTP_200_OK)
 
 
 class FileSave(GenericAPIView):
@@ -145,4 +156,17 @@ class FileSave(GenericAPIView):
             File.File = request.FILES[i]
             File.save()
             filepath[i] = File.File.url
-        return Response({"success": True, "filepath": filepath})
+        return Response({"success": True, "filepath": filepath}, status=status.HTTP_200_OK)
+
+
+class MakeFormVisible(GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (AuthToken,)
+    serializer_class = MakeFormVisibleSerializer
+
+    def post(self, request):
+        data = {"form_id": str(request.data["form_id"]), "owner": str(request.user.pk),
+                "isPublish": request.data["isPublish"]}
+        serializer = self.serializer_class(data=data)
+        serializer.is_valid(raise_exception=True)
+        return Response({"success": True}, status=status.HTTP_200_OK)
