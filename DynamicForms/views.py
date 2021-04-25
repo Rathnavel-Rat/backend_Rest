@@ -1,3 +1,5 @@
+import os
+
 from rest_framework import status, permissions, generics
 from rest_framework.generics import GenericAPIView, ListAPIView
 from rest_framework.response import Response
@@ -6,7 +8,7 @@ from DynamicForms.serializers import FormSaveSerializer, GetStoredFormSerializer
     DeleteSerializer, SaveResponse, GetResponsesSerializer, FileSaveSerializer, MakeFormVisibleSerializer, \
     AccessFormSerializer
 from authrest.CustomAuth import AuthToken
-from .models import FormsModel, FormResponses, FormFileResponses
+from .models import FormsModel, FormResponses, FormFileResponses, FormImageUpload
 import base64
 
 
@@ -170,3 +172,15 @@ class MakeFormVisible(GenericAPIView):
         serializer = self.serializer_class(data=data)
         serializer.is_valid(raise_exception=True)
         return Response({"success": True}, status=status.HTTP_200_OK)
+
+
+class ImageFileUpload(GenericAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    authentication_classes = (AuthToken,)
+
+    def post(self, request):
+        File = FormImageUpload()
+        File.File = request.FILES["file"]
+        File.save()
+        return Response({"success": True, "link": os.environ.get("BACKEND_DOMAIN") + File.File.url},
+                        status=status.HTTP_200_OK)

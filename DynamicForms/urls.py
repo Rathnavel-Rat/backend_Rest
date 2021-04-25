@@ -14,5 +14,6 @@ urlpatterns = [
     path("GetResponse",views.GetResponses.as_view(),name="GetFormResponses"),
     path("saveFile",views.FileSave.as_view(),name="saveFile"),
     path("MakeFormVisible",views.MakeFormVisible.as_view(),name="MakeFormVisible"),
+    path("FileUploadForm", views.ImageFileUpload.as_view(), name="FileUpload"),
 
 ]

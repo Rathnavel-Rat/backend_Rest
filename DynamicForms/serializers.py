@@ -180,9 +180,8 @@ class AccessFormSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         access_id = attrs.get("access_id")
-        print(access_id)
         try:
-            form = FormsModel.objects.get(access_id=access_id)
+            FormsModel.objects.get(access_id=access_id)
         except FormsModel.DoesNotExist:
             raise serializers.ValidationError("No Such Form is Found")
         except Exception as e:
